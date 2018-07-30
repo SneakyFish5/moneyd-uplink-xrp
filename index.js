@@ -43,6 +43,11 @@ async function configure ({ testnet, advanced }) {
     validate: (secret) => (testnet && secret.length === 0) || isValidSeed(secret)
   }, {
     type: 'input',
+    name: 'outgoingChannelAmount',
+    message: 'Amount of XRP to fund this channel with:'
+    default: Plugin.OUTGOING_CHANNEL_DEFAULT_AMOUNT
+  }, {
+    type: 'input',
     name: 'xrpServer',
     message: 'Rippled server:',
     default: defaultRippled
@@ -96,6 +101,7 @@ async function configure ({ testnet, advanced }) {
       secret: res.secret,
       address: res.address,
       xrpServer: res.xrpServer
+      outgoingChannelAmount: res.outgoingChannelAmount
     }
   }
 }
@@ -264,7 +270,7 @@ async function validateAddress (server, address) {
 
   const minBalance = (+reserveBaseXRP) + (+reserveIncrementXRP) * accountInfo.ownerCount + // total current reserve
     (+reserveIncrementXRP) + // reserve for the channel
-    (+Plugin.OUTGOING_CHANNEL_DEFAULT_AMOUNT) +
+    (+this.pluginOpts.outgoingChannelAmount) +
     1 // extra to cover channel create fee
   const currentBalance = +accountInfo.xrpBalance
   if (currentBalance < minBalance) {
